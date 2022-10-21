@@ -1,0 +1,59 @@
+const api_key = import.meta.env.VITE_API_KEY;
+const channel_id = "UC3wla9xMoxDu7MIZImad1kQ";
+
+
+async function initGapiClient() {
+    await gapi.client
+        .init({
+            apiKey: api_key
+        })
+        .then(() => {
+            console.log('Client initialized');
+        });
+}
+
+
+export async function loadGapi(){
+    await gapi.load('client', initGapiClient);
+}
+
+export async function getAllVidoes(){
+    await gapi.client.load("youtube", "v3");
+
+    let res = await gapi.client.youtube.channels.list({
+            id: channel_id,
+            part: "contentDetails"
+        })
+    let playlist_id = res.result.items[0].contentDetails.relatedPlaylists.uploads
+    let videos:any[] = []
+    let next_page_token = "";
+    
+    while(next_page_token != undefined){
+        let res2:any = await  gapi.client.youtube.playlistItems.list({
+            playlistId: playlist_id,
+            part: "snippet, contentDetails",
+            maxResults: 50,
+            pageToken: next_page_token
+        })
+        next_page_token = res2.result.nextPageToken
+        videos = [...videos, ...res2.result.items]
+    }
+   
+    return videos;
+    // console.log(videos.length);
+    
+}
+
+export async function getThumbnail(url: string){
+    url = url.replace("https://www.youtube.com/watch?v=", "")
+    await gapi.client.load("youtube", "v3");
+    let res = await gapi.client.youtube.videos.list({
+        part: "snippet",
+        id: url
+        
+    })
+    if(res.result.items.length > 0){
+        return res.result.items[0].snippet.thumbnails.maxres.url
+    }
+    return "https://www.pietsmiet.de/assets/pietsmiet/brand/wordmark-plain-light-detail.svg"
+}

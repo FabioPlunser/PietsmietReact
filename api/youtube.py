@@ -26,7 +26,7 @@ def get_channel_videos(channel_id):
     
     return videos
 
-videos = get_channel_videos('UCqwGaUvq_l0RKszeHhZ5leA')
+videos = get_channel_videos('UC3wla9xMoxDu7MIZImad1kQ')
 
 for video in videos:
     print(video['snippet']['title'])
