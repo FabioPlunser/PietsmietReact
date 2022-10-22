@@ -3,58 +3,104 @@
     import {fetchSuggestionsFromDB} from "$lib/fetchVideosFromdb"
     import { onMount } from "svelte";
     import Video from "$lib/video.svelte";
-    import Suggestions from "$lib/suggestions.svelte"
+    
     import Spinner from "$lib/spinner.svelte"
+    import { browser } from "$app/environment";
+  import Suggestions from "$src/lib/suggestions.svelte";
     onMount(async () => {
         loadGapi();
     });
 
-    let getVideos = false;
+    let gotVideos = false;
     let YTvideos: any[] = [];
     let PSSuggestions: any[] = [];
     // Original-Video:.*?(?=\n)
     // Original.+?(?=\n)
     let pattern = /.((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/
-    let geschauteVideos: any[] = [];
-    $: {
-        
-        console.log(YTvideos);
-        for (let video of YTvideos) {
+    
+    async function compareVideos(){
+        gotVideos = true;
+        let bereitsGesehen:any[] = [];
+        let storage;
+        if(browser){
+            try {
+                console.log("Get Storage")
+                if(localStorage.getItem("bereitsGesehen") != null){
+                    storage = localStorage.getItem("bereitsGesehen")
+                    storage = JSON.parse(storage);
+                    bereitsGesehen = storage;
+                    console.log(bereitsGesehen);
+                    return bereitsGesehen;
+                }
+            
+            } catch (error) {
+                console.log("Not in LocalStorage")
+            }
+        }
+        console.log("GetVideos");
+
+        PSSuggestions = await fetchSuggestionsFromDB();
+        PSSuggestions = PSSuggestions.data;
+        YTvideos = await getAllVidoes();
+
+        console.log("GotVideos");
+        for(let video of YTvideos){
             let description = video.snippet.description;
             if(video.snippet.title.includes("React")){
                 let url = description.match(pattern)
-                geschauteVideos.push(url);
-            }
-            
-        }
-        for(let video of PSSuggestions){
-            console.log(video.url)
-            for(let url of geschauteVideos){
-                console.log(url[0]);
-                if(video.url.includes(url[0])){
-                    alert("match")
+                for(let suggestion of PSSuggestions){
+                    try {
+                        // console.log("YT: " + url[0] + "    " + "PS: " + suggestion.url)
+                        if(suggestion.url.includes(url[0]) || url[0].includes(suggestion.url) || suggestion.url === url[0]){
+                            bereitsGesehen.push(suggestion)
+                            // alert("Bereits gesehen: " + suggestion.title)
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                    
                 }
             }
         }
+        if(browser){
+            try {
+                localStorage.setItem("bereitsGesehen", JSON.stringify(bereitsGesehen))   
+            } catch (error) {
+                console.log("Can't put into localstorage")
+            }
+        }
+        console.log(bereitsGesehen);
+        return bereitsGesehen;
+        
     }
-    async function getYTVideos() {
-        YTvideos = await getAllVidoes();
-        // console.log(YTvideos);
-        return YTvideos; 
-    }
-    async function getPSSuggestions(){
-        let data = await fetchSuggestionsFromDB();
-        PSSuggestions = data.data;
-        return PSSuggestions;
-    }
+
 </script>
 <center>
     <img class="w-1/6" src="https://www.pietsmiet.de/assets/pietsmiet/brand/wordmark-plain-light-detail.svg" alt="logo"/>
     <h1 class="flex mx-auto justify-center text-3xl underline">Pietsmiet React Vorschläge</h1>
 
-    <button class="flex mx-auto justify-center btn btn-primary" on:click={()=>getVideos=true}>Alle Videos mit allen Vorschlägen prüfen</button>
+    <button class="flex mx-auto justify-center btn btn-primary m-5" on:click={()=>gotVideos=true}>Alle Videos mit allen Vorschlägen prüfen</button>
+    <button class="flex mx-auto justify-center btn btn-primary m-5"><a href="/alleVorschlage">Alle Vorschläge sehen</a></button>
+
+    {#if gotVideos}
+        {#await compareVideos()}
+            <div class="flex justify-center mx-auto">
+                <Spinner />
+            </div>
+        {:then bereitsGesehen}
+    
+            <h1 class="flex mx-auto justify-center text-3xl underline m-5">{bereitsGesehen.length} Videos von Vorschlägen bereits gesehen. </h1>
+            <h1 class="text-3xl">Diese videos wurden bereits angeschaut</h1>
+            <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2 m-20">
+                {#each bereitsGesehen as video}
+                    <Suggestions title={video.title} description={video.description} link={video.url}/>
+                {/each}
+            </div>
+        {/await}
+    {/if}
 </center>
-<div class="m-10 flex justify-center">
+
+<!-- <div class="m-10 flex justify-center">
 {#if getVideos}
     {#await getPSSuggestions()}
         <div class="flex justify-center mx-auto">
@@ -88,7 +134,7 @@
         </div>
     {/await}
 {/if}
-</div>
+</div> -->
 
 
 

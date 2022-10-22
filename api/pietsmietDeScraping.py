@@ -43,7 +43,7 @@ def api():
     wait.until(EC.element_to_be_clickable(
         (By.XPATH, "//*[@id=\"main\"]/div[1]/div/div[1]/div[1]/a[1]"))).click()
     time.sleep(1)
-    for x in range(0, 100):
+    for x in range(0, 500):
         try:
             time.sleep(0.5)
             suggestions = driver.find_elements(
