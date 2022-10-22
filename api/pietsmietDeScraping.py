@@ -26,6 +26,7 @@ with con:
         );
     """)
 
+
 @app.route('/api/scrapeVideos', methods=['GET'])
 def api():
     reacts = []
@@ -39,21 +40,24 @@ def api():
     wait = WebDriverWait(driver, 10)
     wait.until(EC.element_to_be_clickable(
         (By.XPATH, "//*[@id=\"qc-cmp2-ui\"]/div[2]/div/button[2]"))).click()
-
-    # while (True):
-    #     try:
-    suggestions = driver.find_elements(
-        By.XPATH, "//div[@class='flex-grow border-l-0 lg:border-l border-gray-200']")
-    for suggestion in suggestions:
-        if "React" in suggestion.text and "https" in suggestion.text:
-            # print(suggestion.text)
-            reacts.append(suggestion.text)
-    wait = WebDriverWait(driver, 20)
-    element = wait.until(EC.element_to_be_clickable(
-        (By.XPATH, "//a[@aria-label='Next']"))).click()
-    time.sleep(2)
-    # except:
-    #     break
+    wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//*[@id=\"main\"]/div[1]/div/div[1]/div[1]/a[1]"))).click()
+    time.sleep(1)
+    for x in range(0, 100):
+        try:
+            time.sleep(0.5)
+            suggestions = driver.find_elements(
+                By.XPATH, "//div[@class='flex-grow border-l-0 lg:border-l border-gray-200']")
+            for suggestion in suggestions:
+                if "React" in suggestion.text and "https" in suggestion.text:
+                    print(suggestion.text + "\n")
+                    reacts.append(suggestion.text)
+            wait = WebDriverWait(driver, 20)
+            element = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, "//a[@aria-label='Next']"))).click()
+            time.sleep(0.5)
+        except:
+            break
 
     reactsJson = []
     reactsSQL = []

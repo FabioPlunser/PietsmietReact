@@ -14,25 +14,28 @@
     let PSSuggestions: any[] = [];
     // Original-Video:.*?(?=\n)
     // Original.+?(?=\n)
-    let pattern = /((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/g
+    let pattern = /.((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/
     let geschauteVideos: any[] = [];
     $: {
         
         console.log(YTvideos);
         for (let video of YTvideos) {
             let description = video.snippet.description;
-            if(description.match(pattern) != null) {
-                geschauteVideos.push(description.match(pattern));
+            if(video.snippet.title.includes("React")){
+                let url = description.match(pattern)
+                geschauteVideos.push(url);
             }
+            
         }
-        for (let vidoe of geschauteVideos) {
-            for (let Vorschlag of PSSuggestions.data){
-                if(Vorschlag.url === vidoe[0]){
-                    alert("Vorschlag wurde bereits gesehen");
+        for(let video of PSSuggestions){
+            console.log(video.url)
+            for(let url of geschauteVideos){
+                console.log(url[0]);
+                if(video.url.includes(url[0])){
+                    alert("match")
                 }
             }
         }
-        
     }
     async function getYTVideos() {
         YTvideos = await getAllVidoes();
@@ -40,16 +43,17 @@
         return YTvideos; 
     }
     async function getPSSuggestions(){
-        PSSuggestions = await fetchSuggestionsFromDB();
-        console.log(PSSuggestions);
+        let data = await fetchSuggestionsFromDB();
+        PSSuggestions = data.data;
         return PSSuggestions;
     }
 </script>
+<center>
+    <img class="w-1/6" src="https://www.pietsmiet.de/assets/pietsmiet/brand/wordmark-plain-light-detail.svg" alt="logo"/>
+    <h1 class="flex mx-auto justify-center text-3xl underline">Pietsmiet React Vorschläge</h1>
 
-<h1 class="flex mx-auto justify-center">Pietsmiet React Vorschläge</h1>
-
-<button class="flex mx-auto justify-center btn btn-primary" on:click={()=>getVideos=true}>Alle Videos mit allen Vorschlägen prüfen</button>
-
+    <button class="flex mx-auto justify-center btn btn-primary" on:click={()=>getVideos=true}>Alle Videos mit allen Vorschlägen prüfen</button>
+</center>
 <div class="m-10 flex justify-center">
 {#if getVideos}
     {#await getPSSuggestions()}
@@ -59,7 +63,7 @@
     {:then data}
         <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2">
 
-            {#each data.data as Suggestion}
+            {#each data as Suggestion}
                     <Suggestions title={Suggestion.title} description={Suggestion.description} link={Suggestion.url}/>
             {/each}
         </div>
@@ -77,7 +81,9 @@
     {:then videos}
         <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2">
             {#each videos as video}
-                <Video title={video.snippet.title} description={video.snippet.description.slice(0, 150)} thumbnail={video.snippet.thumbnails.maxres} />
+                {#if video.snippet.title.includes("React")}
+                    <Video title={video.snippet.title} description={video.snippet.description.slice(0, 150)} thumbnail={video.snippet.thumbnails.maxres} />
+                {/if}
             {/each}
         </div>
     {/await}
