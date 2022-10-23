@@ -51,7 +51,7 @@
                 for(let suggestion of PSSuggestions){
                     try {
                         // console.log("YT: " + url[0] + "    " + "PS: " + suggestion.url)
-                        if(suggestion.url.includes(url[0]) || url[0].includes(suggestion.url) || suggestion.url === url[0]){
+                        if(url[0].includes(suggestion.url) || suggestion.url === url[0]){
                             bereitsGesehen.push(suggestion)
                             // alert("Bereits gesehen: " + suggestion.title)
                         }
