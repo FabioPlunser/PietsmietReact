@@ -2,9 +2,11 @@
     export let title = "";
     export let description = "";
     export let link = "";
+
     import {getThumbnail} from "$lib/youtube";
     import { onMount } from "svelte";
-    let thumbnail = ""; 
+    let thumbnail: string = ""; 
+
     onMount(async () => {
         thumbnail = await getThumbnail(link);
     });
@@ -16,6 +18,6 @@
     <div class="card-body">
     <h2 class="card-title">{title}</h2>
     <p>{description}</p>
-    <button class="btn btn-primary"><a href="{link}" target="_blank">Go to Video</a></button>
+    <button class="btn btn-primary"><a href="{link}" rel="noreferrer">Go to Video</a></button>
     </div>
 </div>

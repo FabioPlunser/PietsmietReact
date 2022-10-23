@@ -1,7 +1,6 @@
 <script lang="ts">
     import Suggestions from "$lib/suggestions.svelte"
     export let data: any;
-    
     import Spinner from "$lib/spinner.svelte"
 </script>
 

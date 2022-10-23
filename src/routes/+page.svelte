@@ -1,8 +1,7 @@
 <script lang="ts">
     import {loadGapi, getAllVidoes} from "$lib/youtube"
-    // import {fetchSuggestionsFromDB} from "$lib/fetchVideosFromdb"
     import { onMount } from "svelte";
-    import Video from "$lib/video.svelte";
+    
     
     import Spinner from "$lib/spinner.svelte"
     import { browser } from "$app/environment";
@@ -14,37 +13,36 @@
     export let data;
     let gotVideos = false;
     let YTvideos: any[] = [];
-    let PSSuggestions = data.data
-    // Original-Video:.*?(?=\n)
-    // Original.+?(?=\n)
+    let PSSuggestions = data.data;
+
     let pattern = /.((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/
     
     async function compareVideos(){
         gotVideos = true;
         let bereitsGesehen:any[] = [];
-        let storage;
+        let storage:any = [];
         if(browser){
             try {
-                console.log("Get Storage")
+                // console.log("Get Storage")
                 if(localStorage.getItem("bereitsGesehen") != null){
                     storage = localStorage.getItem("bereitsGesehen")
                     storage = JSON.parse(storage);
                     bereitsGesehen = storage;
-                    console.log(bereitsGesehen);
+                    // console.log(bereitsGesehen);
                     return bereitsGesehen;
                 }
             
             } catch (error) {
-                console.log("Not in LocalStorage")
+                // console.log("Not in LocalStorage")
             }
         }
-        console.log("GetVideos");
+        // console.log("GetVideos");
 
         // PSSuggestions = await fetchSuggestionsFromDB();
         // PSSuggestions = PSSuggestions.data;
         YTvideos = await getAllVidoes();
 
-        console.log("GotVideos");
+        // console.log("GotVideos");
         for(let video of YTvideos){
             let description = video.snippet.description;
             if(video.snippet.title.includes("React")){
@@ -52,7 +50,7 @@
                 for(let suggestion of PSSuggestions){
                     try {
                         // console.log("YT: " + url[0] + "    " + "PS: " + suggestion.url)
-                        if(url[0].includes(suggestion.url) || suggestion.url === url[0]){
+                        if(url[0].includes(suggestion.url)){
                             bereitsGesehen.push(suggestion)
                             // alert("Bereits gesehen: " + suggestion.title)
                         }
@@ -70,7 +68,7 @@
                 console.log("Can't put into localstorage")
             }
         }
-        console.log(bereitsGesehen);
+        // console.log(bereitsGesehen);
         return bereitsGesehen;
         
     }

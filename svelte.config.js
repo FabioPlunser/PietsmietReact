@@ -1,4 +1,4 @@
-import adapter from "@sveltejs/adapter-static";
+import adapter from '@sveltejs/adapter-node';
 import preprocess from "svelte-preprocess";
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -16,12 +16,14 @@ const config = {
       $lib: "src/lib",
       $components: "src/lib/components",
     },
-    adapter: adapter({
-      pages: "dist",
-      assets: "dist",
-      fallback: null,
-      precompress: false,
-    }),
+    adapter: adapter(),
+    // adapter: adapter({
+    //   pages: "build",
+    //   assets: "build",
+    //   fallback: true,
+    //   precompress: false,
+    //   strict: true,
+    // }),
     prerender: {
       // This can be false if you're using a fallback (i.e. SPA mode)
       default: true,
