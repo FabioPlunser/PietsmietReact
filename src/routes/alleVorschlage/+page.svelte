@@ -1,13 +1,13 @@
-<script>
+<script lang="ts">
     import Suggestions from "$lib/suggestions.svelte"
-    import {fetchSuggestionsFromDB} from "$lib/fetchVideosFromdb"
+    export let data: any;
     
     import Spinner from "$lib/spinner.svelte"
 </script>
 
 <button class="flex mx-auto justify-center btn btn-primary m-5 text-4xl"><a href="/">Home</a></button>
 
-{#await fetchSuggestionsFromDB()}
+{#await data}
     <div class="flex justify-center mx-auto">
         <Spinner />
     </div>

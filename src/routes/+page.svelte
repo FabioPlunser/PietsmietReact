@@ -1,19 +1,20 @@
 <script lang="ts">
     import {loadGapi, getAllVidoes} from "$lib/youtube"
-    import {fetchSuggestionsFromDB} from "$lib/fetchVideosFromdb"
+    // import {fetchSuggestionsFromDB} from "$lib/fetchVideosFromdb"
     import { onMount } from "svelte";
     import Video from "$lib/video.svelte";
     
     import Spinner from "$lib/spinner.svelte"
     import { browser } from "$app/environment";
-  import Suggestions from "$src/lib/suggestions.svelte";
+    import Suggestions from "$src/lib/suggestions.svelte";
     onMount(async () => {
         loadGapi();
     });
 
+    export let data;
     let gotVideos = false;
     let YTvideos: any[] = [];
-    let PSSuggestions: any[] = [];
+    let PSSuggestions = data.data
     // Original-Video:.*?(?=\n)
     // Original.+?(?=\n)
     let pattern = /.((http(s)?:\/\/)?)(www\.)?((youtube\.com\/)|(youtu.be\/))[\S]+/
@@ -39,8 +40,8 @@
         }
         console.log("GetVideos");
 
-        PSSuggestions = await fetchSuggestionsFromDB();
-        PSSuggestions = PSSuggestions.data;
+        // PSSuggestions = await fetchSuggestionsFromDB();
+        // PSSuggestions = PSSuggestions.data;
         YTvideos = await getAllVidoes();
 
         console.log("GotVideos");
